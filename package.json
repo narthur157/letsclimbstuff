@@ -1,0 +1,33 @@
+{
+  "name": "letsclimbstuff",
+  "version": "1.0.0",
+  "description": "Small project to practice React.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/narthur157/letsclimbstuff.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/narthur157/letsclimbstuff/issues"
+  },
+  "homepage": "https://github.com/narthur157/letsclimbstuff#readme",
+  "dependencies": {
+    "babel-loader": "^7.1.2",
+    "body-parser": "^1.18.1",
+    "cors": "^2.8.4",
+    "express": "^4.15.4",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-preset-react": "^6.24.1",
+    "webpack-dev-server": "^2.8.2"
+  }
+}
