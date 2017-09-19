@@ -1,5 +1,12 @@
 Small project to practice React.
 
+###Setup
+
+`npm install`
+`npm run dev` starts the node server as well as the webpack-dev server
+
+Open http://localhost:8080
+
 MVP:
 
 List of climbing locations each with a queue of people looking to climb. Current solutions for this problem are cumbersome, slow, and require too much planning. Goal: be able to show up to crag and group up without prior planning
