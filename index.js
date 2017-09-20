@@ -1,10 +1,17 @@
 import React from 'react'
 import {render} from 'react-dom'
 import {BrowserRouter, Route, Link} from 'react-router-dom'
+import 'typeface-roboto'
+import Button from 'material-ui/Button'
+import Grid from 'material-ui/Grid'
+import Paper from 'material-ui/Paper'
+import Typography from 'material-ui/Typography'
+import TextField from 'material-ui/TextField'
+import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List'
 
 const server = "http://localhost:8000/"
 const getClimbers = (lat, lon) => server + "climbers/" + lat + "/" + lon
-const addClimber = server + "addClimber"
+const addClimber = server + "setClimber"
 
 
 // TODO: Split components into their own files
@@ -15,7 +22,8 @@ class ClimberList extends React.Component {
     this.state = { 
       climbers: [],
       latitude: this.props.match.params.latitude,
-      longitude: this.props.match.params.longitude
+      longitude: this.props.match.params.longitude,
+      climberAdded: false
     }
 
     this.handleAddClimber = this.handleAddClimber.bind(this)
@@ -47,29 +55,35 @@ class ClimberList extends React.Component {
   }
   
   handleAddClimber (climber) {
+    if (this.state.sId) { climber.sId = this.state.sId }
+
     climber.latitude = this.state.latitude
     climber.longitude = this.state.longitude 
 
-    let newClimbers = this.state.climbers
-    newClimbers.push(climber)
-
+    // Significant hack used here to get state without CORS
+    // Server just saves the session id and sends it back, client keeps track of it
+    // TODO: Session correctly
     fetch(addClimber, {
       method: 'POST',
       headers: {
         'Content-Type':  'application/json'
       },
       body: JSON.stringify(climber)
-    })
+    }).then(resp => resp.text()).then(sId => this.setState({ sId }))
 
-    this.setState({ climbers: newClimbers })
+    // this.setState({ climbers: newClimbers })
   }
   
   render() {
     return (
-      <div>
-        <AddClimberForm onSubmitClimber={this.handleAddClimber}/>
-        <Climbers climbers={this.state.climbers} />
-      </div>
+      <Grid container>
+        <Grid item xs={6}>
+          <AddClimberForm onSubmitClimber={this.handleAddClimber}/>
+        </Grid>
+        <Grid item xs={12}>
+          <Climbers climbers={this.state.climbers} />
+        </Grid>
+      </Grid>
     )
   }
 }
@@ -105,23 +119,32 @@ class AddClimberForm extends React.Component {
  
   render() {
     return (
-      <div>
-        <input onChange={this.handleNameChange} value={this.state.name} placeholder='name' />
-        <input onChange={this.handleDescChange} value={this.state.desc} placeholder='description' />
-        <button type="button" onClick={this.handleSubmitClimber}>Add Climber</button>
-      </div>
+      <Paper>
+        <Grid container>
+          <Grid item>
+            <TextField id='name' label='Name' onChange={this.handleNameChange} value={this.state.name} />
+          </Grid>
+          <Grid item>
+            <TextField id='desc' onChange={this.handleDescChange} value={this.state.desc} label='Description' />
+          </Grid>
+          <Grid item>
+            <Button color='primary' onClick={this.handleSubmitClimber}>Add me to the list</Button>
+          </Grid>
+        </Grid>
+      </Paper>
     )
   }
 }
 
 class Climber extends React.Component {
   render() {
+    let latlon = this.props.latitude + ' ' + this.props.longitude
+
     return (
-      <div className="row">
-        <div className="col">{this.props.name}</div>
-        <div className="col">{this.props.desc}</div>
-        <div className="col">{this.props.latitude} {this.props.longitude}</div>
-      </div>
+        <ListItem>
+          <ListItemText primary={this.props.name}></ListItemText>
+          <ListItemText primary={this.props.desc}></ListItemText>
+        </ListItem>
     )
   }
 }
@@ -133,14 +156,10 @@ class Climbers extends React.Component {
       )
 
       return (
-        <div className="container">
-          <h3>Climbers looking for partners:</h3>
-          <div className="row">
-            <div className="col">Name</div>
-            <div className="col">Description</div>
-          </div>
-          <ul>{climbers}</ul>
-        </div>
+        <Paper>
+          <Typography type="display2">Climbers</Typography>
+          <List>{climbers}</List>
+        </Paper>
       )
   }
 }
@@ -165,8 +184,12 @@ class LetsClimbMain extends React.Component {
     let makeLink = () => "/list/" + this.state.latitude + "/" + this.state.longitude
     return (
       <div>
-        <SelectLocation onSelectLocation={this.handleSelectLocation} />
-        <Link to={makeLink()}>See climbers</Link>
+        <Route exact path="/" render={() => (
+          <div>
+            <SelectLocation onSelectLocation={this.handleSelectLocation} />
+            <Link to={makeLink()}>See climbers</Link>
+          </div>
+        )} /> 
         <Route path="/list/:latitude/:longitude" component={ClimberList}/>
       </div>
     )
@@ -194,9 +217,9 @@ class SelectLocation extends React.Component {
     })
 
     return (
-      <div>
-        <p>Your location is {this.state.latitude} {this.state.longitude}</p>
-      </div>
+      <Paper>
+        <Typography>Your location is {this.state.latitude} {this.state.longitude}</Typography>
+      </Paper>
     )
   }
 }

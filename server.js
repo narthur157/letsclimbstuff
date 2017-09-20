@@ -2,27 +2,40 @@ const express = require ('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const haversine = require('haversine')
+const session = require('express-session')
 
 const app = express()
 app.use(cors())
+app.use(session({
+	secret: 'super super secret',
+	resave: false,
+	saveUnitialized: true
+}))
 
-
-const port = 8000
+const port = process.env.PORT || 8000
 
 app.use(bodyParser())
 
 let climbers = []
+let climberMap = {}
 
-app.post('/addClimber', (req, res) => {
+app.post('/setClimber', (req, res) => {
+
 	const climber = { name: req.body.name,
 					  desc: req.body.desc,
 					  latitude: req.body.latitude,
-					  longitude: req.body.longitude 
+					  longitude: req.body.longitude,
+					  sId: req.body.sId
 					}
 
-	climbers.push(climber)
+	let id = climber.sId ? JSON.parse(climber.sId) : req.session.id
+	climber.sId = id
+
+	climberMap[id] = climber
+	climbers = Object.values(climberMap)
+
 	console.log(climbers)
-	res.sendStatus(200)
+	res.json(id)
 })
 
 app.get('/climbers/:latitude/:longitude', (req, res) => {
