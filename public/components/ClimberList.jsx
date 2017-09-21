@@ -3,7 +3,7 @@ import {render} from 'react-dom'
 import Climbers from 'Components/Climbers'
 import SetClimberForm from 'Components/SetClimberForm'
 
-const server = 'http://localhost:8000/'
+const server = 'https://localhost:8443/'
 const getClimbers = (lat, lon) => server + 'climbers/' + lat + '/' + lon
 const addClimber = server + 'setClimber'
 

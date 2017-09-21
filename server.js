@@ -3,8 +3,10 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const haversine = require('haversine')
 const session = require('express-session')
+const https = require('https')
+const fs = require('fs')
 
-const app = express()
+let app = express()
 app.use(cors())
 app.use(session({
 	secret: 'super super secret',
@@ -15,6 +17,7 @@ app.use(session({
 const port = process.env.PORT || 8000
 
 app.use(bodyParser())
+
 
 let climbers = []
 let climberMap = {}
@@ -45,6 +48,16 @@ app.get('/climbers/:latitude/:longitude', (req, res) => {
 	res.json(nearbyClimbers)
 })
 
-app.listen(port, () => {
-	console.log('sending')
-})
+let secureServer = https.createServer({
+    key: fs.readFileSync('./ssl/server.key'),
+    cert: fs.readFileSync('./ssl/server.crt'),
+    ca: fs.readFileSync('./ssl/ca.crt'),
+    requestCert: true,
+    rejectUnauthorized: false
+}, app)
+
+secureServer.listen('8443')
+
+// app.listen(port, () => {
+// 	console.log('sending')
+// })

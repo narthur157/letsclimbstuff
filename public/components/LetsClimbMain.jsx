@@ -25,7 +25,7 @@ export default class LetsClimbMain extends React.Component {
     return (
       <div>
         <header className='bg-black-90'>
-          <h3 className='tracked fw6 ttu pl3 pv2 white-80'>Let's Climb Stuff</h3>
+          <h3 className='tracked fw6 ttu pl3 pv2 yellow'>Let's Climb Stuff</h3>
         </header>
         <Route exact path="/" render={() => (
           <div>

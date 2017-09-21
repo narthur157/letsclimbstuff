@@ -11,6 +11,7 @@ module.exports = merge(common, {
       rewrites: [
         { from: /list\/*/, to: 'index.html' }
       ]
-    }
+    },
+    https: true
   }
 })

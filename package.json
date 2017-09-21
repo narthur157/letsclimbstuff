@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "concurrently --kill-others \"webpack-dev-server --config webpack.dev.js \" \"nodemon server.js\"",
+    "dev": "concurrently --kill-others \"webpack-dev-server --config webpack.dev.js --host 0.0.0.0 \" \"nodemon server.js\"",
     "build": "webpack --config webpack.prod.js"
   },
   "repository": {
@@ -27,6 +27,7 @@
     "express-session": "^1.15.5",
     "file-loader": "^0.11.2",
     "haversine": "^1.0.2",
+    "https": "^1.0.0",
     "material-ui": "^1.0.0-beta.11",
     "raw-loader": "^0.5.1",
     "react": "^15.6.1",
