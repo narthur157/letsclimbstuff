@@ -42,6 +42,7 @@
     "babel-preset-react": "^6.24.1",
     "concurrently": "^3.5.0",
     "nodemon": "^1.12.1",
+    "tachyons": "^4.8.0",
     "webpack": "^3.6.0",
     "webpack-dev-server": "^2.8.2"
   }

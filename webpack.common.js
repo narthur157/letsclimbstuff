@@ -1,16 +1,27 @@
 const path = require('path')
+console.log(__dirname)
 
 module.exports = {
-  entry: "./index",
+  entry: path.resolve(__dirname, 'public/index'),
   output: {
-    path: path.resolve(__dirname, "dist"),
-    filename: "bundle.js",
-    publicPath: "dist"
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'bundle.js',
+    publicPath: 'dist'
+  },
+  resolve: {
+    extensions: ['.js', '.jsx', '.css'],
+    modules: [
+      path.resolve(__dirname, 'public'),
+      'node_modules'
+    ],
+    alias: {
+      Components: path.resolve(__dirname, 'public/components/')
+    }
   },
   module: {
-    rules: [
+    rules: [  
       {
-        test: /\.js$/,
+        test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,
         use: {
           loader: 'babel-loader',
