@@ -56,6 +56,10 @@ let secureServer = https.createServer({
     rejectUnauthorized: false
 }, app)
 
+app.listen(port, () => {
+	console.log('http listening on port', port)
+})
+
 secureServer.listen('8443')
 
 // app.listen(port, () => {

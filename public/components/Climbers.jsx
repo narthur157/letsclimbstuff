@@ -9,11 +9,10 @@ export default class Climbers extends React.Component {
       )
 
       return (
-        <article className='center mw7'>
-          <h1 className='f4 fw6 pb3'>Climbers near you</h1>
-          <label className='f6 fw5 dib w-20'>Name</label>
-          <label className='f6 fw5 dib w-80'>How to find</label>
-          <ul className='list pl0 ml0 mt0 bt bb b--light-silver'>{climbers}</ul>
+        <article className='center mw7 overflow-auto vh-50 ph1'>
+          <label className='f6 fw5 dib w-30'>Name</label>
+          <label className='f6 fw5 dib w-70'>How to find</label>
+          <ul className='list pl0 ml0 mt0 bt b--light-silver'>{climbers}</ul>
         </article>
       )
   }

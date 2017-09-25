@@ -3,7 +3,7 @@ import {render} from 'react-dom'
 import Climbers from 'Components/Climbers'
 import SetClimberForm from 'Components/SetClimberForm'
 
-const server = 'https://localhost:8443/'
+const server = 'http://' + document.domain + ':8000/'
 const getClimbers = (lat, lon) => server + 'climbers/' + lat + '/' + lon
 const addClimber = server + 'setClimber'
 
@@ -69,12 +69,8 @@ export default class ClimberList extends React.Component {
   render() {
     return (
       <div>
-        <div>
-          <SetClimberForm onSubmitClimber={this.handleAddClimber}/>
-        </div>
-        <div>
-          <Climbers climbers={this.state.climbers} />
-        </div>
+        <Climbers climbers={this.state.climbers} />
+        <SetClimberForm onSubmitClimber={this.handleAddClimber}/>
       </div>
     )
   }
