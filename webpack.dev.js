@@ -7,11 +7,12 @@ module.exports = merge(common, {
   devtool: 'eval-source-map',
   devServer: {
     historyApiFallback: {
-      index: './index.html',
+      index:'public/index.html',
       rewrites: [
-        { from: /list\/*/, to: 'index.html' }
+        { from: /list\/*/, to: 'public/index.html' }
       ]
     },
-    https: false
+    https: false,
+    contentBase: './public'
   }
 })
