@@ -23,8 +23,12 @@ export default class LetsClimbMain extends React.Component {
       <div>
         <header className='bg-black-90 tracked fw6 ttu pl3 pv2 yellow overflow-auto'>
           <a href="/" className='fl no-underline yellow dib'>Lets Climb Stuff</a>
-          <a className='no-underline fr pl3 dib white-90' href="https://trello.com/b/7llp91a8">Trello</a>
-          <a className='no-underline fr pl3 dib white-90' href="https://github.com/narthur157/letsclimbstuff">Develop</a>
+          <a className='f4 fr dib white' href="https://trello.com/b/7llp91a8">
+            <i className="fa fa-trello" aria-hidden="true"></i>
+          </a>
+          <a className='f4 ph2 fr dib white' href="https://github.com/narthur157/letsclimbstuff">
+            <i className="fa fa-github-square" aria-hidden="true"></i>
+          </a>
         </header>
         <Route exact path="/" render={() => (
           this.state.longitude ? (
