@@ -3,16 +3,10 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const haversine = require('haversine')
 const session = require('express-session')
-const https = require('https')
 const fs = require('fs')
 
 let app = express()
 app.use(cors())
-app.use(session({
-	secret: 'super super secret',
-	resave: false,
-	saveUnitialized: true
-}))
 
 const port = process.env.PORT || 8000
 
@@ -23,7 +17,6 @@ let climbers = []
 let climberMap = {}
 
 app.post('/setClimber', (req, res) => {
-
 	const climber = { name: req.body.name,
 					  desc: req.body.desc,
 					  latitude: req.body.latitude,
@@ -31,7 +24,7 @@ app.post('/setClimber', (req, res) => {
 					  sId: req.body.sId
 					}
 
-	let id = climber.sId ? JSON.parse(climber.sId) : req.session.id
+	let id = climber.sId ? JSON.parse(climber.sId) : Math.floor(Math.random() * 99999)
 	climber.sId = id
 
 	climberMap[id] = climber
@@ -48,19 +41,10 @@ app.get('/climbers/:latitude/:longitude', (req, res) => {
 	res.json(nearbyClimbers)
 })
 
-let secureServer = https.createServer({
-    key: fs.readFileSync('./ssl/server.key'),
-    cert: fs.readFileSync('./ssl/server.crt'),
-    ca: fs.readFileSync('./ssl/ca.crt'),
-    requestCert: true,
-    rejectUnauthorized: false
-}, app)
-
 app.listen(port, () => {
 	console.log('http listening on port', port)
 })
 
-secureServer.listen('8443')
 
 // app.listen(port, () => {
 // 	console.log('sending')
