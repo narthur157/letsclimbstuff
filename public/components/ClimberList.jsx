@@ -19,8 +19,6 @@ export default class ClimberList extends React.Component {
     }
 
     this.handleAddClimber = this.handleAddClimber.bind(this)
-
-    Notification.requestPermission()
     
     let updateClimbers = () => {
       let numClimbersOld = this.state.climbers.length
@@ -33,10 +31,6 @@ export default class ClimberList extends React.Component {
         this.setState({
           climbers: JSON.parse(val)
         })
-
-        if (this.state.climbers.length > numClimbersOld) {
-          new Notification('There are new climbers near you')
-        }
       })
     }
 
