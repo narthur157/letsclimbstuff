@@ -3,7 +3,13 @@ import {render} from 'react-dom'
 import Climbers from 'Components/Climbers'
 import SetClimberForm from 'Components/SetClimberForm'
 
-const server = 'https://' + document.domain + ':8001/'
+let server
+if (document.domain.includes('letsclimbstuff')) {
+  server = 'https://' + document.domain + ':8001/'
+}
+else {
+  server = 'http://' + document.domain + ':8001/'
+}
 const getClimbers = (lat, lon) => server + 'climbers/' + lat + '/' + lon
 const addClimber = server + 'setClimber'
 
@@ -52,6 +58,7 @@ export default class ClimberList extends React.Component {
 
     climber.latitude = this.state.latitude
     climber.longitude = this.state.longitude 
+    climber.time = new Date()
 
     // Significant hack used here to get state without CORS
     // Server just saves the session id and sends it back, client keeps track of it
@@ -63,8 +70,6 @@ export default class ClimberList extends React.Component {
       },
       body: JSON.stringify(climber)
     }).then(resp => resp.text()).then(sId => this.setState({ sId }))
-
-    // this.setState({ climbers: newClimbers })
   }
   
   render() {

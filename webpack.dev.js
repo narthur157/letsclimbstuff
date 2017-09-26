@@ -12,7 +12,6 @@ module.exports = merge(common, {
         { from: /list\/*/, to: 'public/index.html' }
       ]
     },
-    https: false,
-    contentBase: './public'
+    https: false
   }
 })

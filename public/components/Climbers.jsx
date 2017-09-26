@@ -5,7 +5,7 @@ import Climber from 'Components/Climber'
 export default class Climbers extends React.Component {
   render() {
       let climbers = this.props.climbers.map((climber, index) => (
-        <Climber name={climber.name} desc={climber.desc} latitude={climber.latitude} longitude={climber.longitude} key={index} />)
+        <Climber name={climber.name} time={climber.time} desc={climber.desc} latitude={climber.latitude} longitude={climber.longitude} key={index} />)
       )
 
       return (
