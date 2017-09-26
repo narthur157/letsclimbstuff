@@ -1,60 +1,53 @@
 import React from 'react'
 import {render} from 'react-dom'
+import Geolocate from 'Components/Geolocate.jsx'
 
 export default class SelectLocation extends React.Component {
   constructor(props) {
     super(props);
     this.state = {}
-    // this.state = {
-    //   latitude: 'unknown',
-    //   longitude: 'unknown'
-    // }
+    this.handleLocate = this.handleLocate.bind(this)
   }
 
-  componentDidMount() {
-    navigator.geolocation.getCurrentPosition(position => {
-      this.setState({ 
-        latitude: position.coords.latitude, 
-        longitude: position.coords.longitude
-      })
-
-      this.props.onSelectLocation(this.state)
-
-    }, error => {
-      this.setState({
-        locationError: error.message
-      })
+  handleLocate(location) {
+    this.setState({
+      latitude: location.latitude,
+      longitude: location.longitude
     })
+
+    this.props.onSelectLocation(location)
   }
 
   render () {
     let result
-
-    if (!navigator.geolocation) {
-        return <p>Geolocation not supported by this browser</p>
-    }
-
-    console.log(this.state)
     if (this.state.latitude && this.state.longitude) {
-      return (
+      result = (
         <div>
-          <p>Your location is {this.state.latitude} {this.state.longitude}</p>
+          <p>Your selected location is {this.state.latitude} {this.state.longitude}</p>
+        </div>
+      )
+    }
+    else {
+      let earthTreks = {
+        latitude: 38.861922,
+        longitude: -77.050498
+      }
+
+      let movement = {
+        latitude: 40.030016,
+        longitude: -105.257420
+      }
+
+      result = (
+        <div>
+          <h3>Where would you like to climb?</h3>
+          <Geolocate onLocated={this.handleLocate} />
+          <button className='w-100 f6 link dim ba bw1 ph3 pv2 mb2 dib black--50' type="button" onClick={this.handleLocate.bind(this, earthTreks)}>Earth Treks - Crystal City</button>
+          <button className='w-100 f6 link dim ba bw1 ph3 pv2 mb2 dib black--50' type="button" onClick={this.handleLocate.bind(this, movement)}>Movement - Boulder</button>
         </div>
       )
     }
 
-    if (this.state.locationError) {
-      return (
-        <div>
-          <p>Error: {this.state.locationError}</p>
-        </div>
-      )
-    }
-
-    return (
-      <div>
-        <p>Accept the location</p>
-      </div>
-    )
+    return result
   }
 }

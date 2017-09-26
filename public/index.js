@@ -5,8 +5,6 @@ import LetsClimbMain from 'Components/LetsClimbMain.jsx'
 
 import 'tachyons'
 
-console.log('react app started', BrowserRouter, LetsClimbMain, render, React)
-
 render((
   <BrowserRouter>
     <LetsClimbMain />
