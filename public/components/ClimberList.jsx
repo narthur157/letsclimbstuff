@@ -26,6 +26,11 @@ export default class ClimberList extends React.Component {
 
     this.handleAddClimber = this.handleAddClimber.bind(this)
     
+  }
+
+  componentDidMount() {
+    this._mounted = true
+
     let updateClimbers = () => {
       let numClimbersOld = this.state.climbers.length
       fetch(getClimbers(this.state.latitude, this.state.longitude), {
@@ -40,17 +45,24 @@ export default class ClimberList extends React.Component {
       })
     }
 
-    updateClimbers()
+
 
     // TODO: reconsider this
     let foreverUpdateClimbers = () => {
-      setTimeout(() => {
-        updateClimbers()
-        foreverUpdateClimbers()
-      }, 3000)
+      // Stop updating when this component is gone
+      if (this._mounted) {
+          updateClimbers()
+        setTimeout(() => {
+          foreverUpdateClimbers()
+        }, 3000)
+      }
     }
 
     foreverUpdateClimbers()
+  }
+
+  componentWillUnmount() {
+    this._mounted = false
   }
   
   handleAddClimber (climber) {

@@ -8,10 +8,10 @@ export default class Climber extends React.Component {
     return (
         <li className='ph0 pv0 bb b--light-silver overflow-auto'>
         	<div className='pv2 dib w-30 fw1 black-90 truncate fl'>
-          	<span className='db fw2 black-90 truncate'>{this.props.name}</span>
+          	<span className='db fw3 black truncate'>{this.props.name}</span>
           	<span className='db f6 black-50 truncate'>{time}</span>
           </div>
-          <p className='dib w-70 fw1 black-70 fr'>{this.props.desc}</p>
+          <p className='dib w-70 fw3 black fr'>{this.props.desc}</p>
         </li>
     )
   }
