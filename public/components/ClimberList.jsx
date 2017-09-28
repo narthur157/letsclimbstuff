@@ -38,14 +38,11 @@ export default class ClimberList extends React.Component {
       }).then(resp => {
         return resp.text()
       }).then(val => {
-        console.log('fetched', val)
         this.setState({
           climbers: JSON.parse(val)
         })
       })
     }
-
-
 
     // TODO: reconsider this
     let foreverUpdateClimbers = () => {

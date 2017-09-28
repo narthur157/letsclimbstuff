@@ -26,21 +26,13 @@ export default class Geolocate extends React.Component {
 
   render () {
     if (!navigator.geolocation) {
-        return <p>Geolocation not supported</p>
+        return <p>Cannot find my location, geolocation not supported</p>
     }
 
     if (this.state.locationError) {
-      return (
-        <div>
-          <p>Error: {this.state.locationError}</p>
-        </div>
-      )
+      return <p>Error: {this.state.locationError} to find your location, please accept the permission in your browser</p>
     }
 
-    return (
-      <div>
-        <button className='w-100 f6 link dim ba bw1 ph3 pv2 mb2 dib black--50' onClick={this.handleGeolocate} type='button'>My location</button>
-      </div>
-    )
+    return <button className='w-100 f6 link dim ba bw1 ph3 pv2 mb2 dib black--50' onClick={this.handleGeolocate} type='button'>My location</button>
   }
 }
