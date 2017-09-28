@@ -6,12 +6,11 @@ const session = require('express-session')
 const fs = require('fs')
 
 let app = express()
-
+app.use(cors())
 let port = process.env.PORT || 8001
 
-if (process.env.NODE_ENV !== 'production') {
-	app.use(cors())
-	port = 8001
+if (process.env.NODE_ENV === 'production') {
+	port = 8000
 }
 
 app.use(bodyParser())

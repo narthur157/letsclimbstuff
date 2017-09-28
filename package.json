@@ -37,6 +37,7 @@
     "react-router-dom": "^4.2.2",
     "style-loader": "^0.18.2",
     "typeface-roboto": "0.0.35",
+    "uglifyjs-webpack-plugin": "^1.0.0-beta.1",
     "url-loader": "^0.5.9",
     "webpack-merge": "^4.1.0"
   },
