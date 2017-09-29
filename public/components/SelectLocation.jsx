@@ -24,6 +24,8 @@ export default class SelectLocation extends React.Component {
   }
 
   render () {
+
+    // TODO: Make pre-defined location component
     let earthTreksUrl = this.makeLink({
       latitude: 38.861922,
       longitude: -77.050498
@@ -32,6 +34,11 @@ export default class SelectLocation extends React.Component {
     let movementUrl = this.makeLink({
       latitude: 40.030016,
       longitude: -105.257420
+    })
+
+    let crgUrl = this.makeLink({
+      latitude: 41.582835,
+      longitude: -81.531752
     })
 
     return (
@@ -43,6 +50,9 @@ export default class SelectLocation extends React.Component {
         </Link>
         <Link to={movementUrl}>
           <button className='w-100 f6 link dim ba bw1 ph3 pv2 mb2 dib black--50' type="button">Movement - Boulder</button>
+        </Link>
+        <Link to={crgUrl}>
+          <button className='w-100 f6 link dim ba bw1 ph3 pv2 mb2 dib black--50' type="button">Cleveland Rock Gym</button>
         </Link>
       </div>
     )
