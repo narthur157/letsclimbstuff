@@ -89,11 +89,12 @@ app.post('/setClimber', (req, res) => {
 	}
 	else {
 		if (!climber.name) { climber.name = climber.username }
-		console.log(climber.sId, climber, climberMap[climber.sId])
 		
 		if (climberMap[climber.sId]) {
 			climberMap[climber.sId].time = climber.time
 			climberMap[climber.sId].desc = climber.desc
+			climberMap[climber.sId].latitude = climber.latitude
+			climberMap[climber.sId].longitude = climber.longitude
 		}
 		else {
 			climberMap[climber.sId] = climber
@@ -101,7 +102,7 @@ app.post('/setClimber', (req, res) => {
 
 		climbers = Object.values(climberMap)
 	}
-
+	console.log(climbers)
 	res.json(id)
 })
 

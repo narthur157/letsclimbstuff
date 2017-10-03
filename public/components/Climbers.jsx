@@ -9,7 +9,7 @@ export default class Climbers extends React.Component {
         <Climber url={climber.url} avatar={climber.avatar} name={climber.name} time={climber.time} desc={climber.desc} latitude={climber.latitude} longitude={climber.longitude} key={index} />)
       )
 
-      let climberTable = <ul className='list pl0 ml0 mt0 bt b--light-silver'>{climbers}</ul>
+      let climberTable = <ul className='list pl0 ml0 mt0 b--white-90'>{climbers}</ul>
 
       if (this.props.climbers.length < 1) {
         climberTable = (

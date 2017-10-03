@@ -54,7 +54,7 @@ class LetsClimbMain extends React.Component {
               <h4>What is this app?</h4>
               <p>It's a way to find people to climb with. Mountain Project has a solid partner finder, but it's hard to find people last minute</p>
               <h4>How do I use it?</h4>
-              <p>Select a location above. This will bring you to a list of climbers. All entries expire after 10 minutes. You can prevent your entry from expiring by editing it</p>
+              <p>Select a location above. This will bring you to a list of climbers. All entries expire after 45 minutes. You can prevent your entry from expiring by editing it</p>
               <p>Make sure you include any info in your description that's important to finding you or deciding to climb with you.</p>
               <p>You might want to consider mentioning what type of climbing you're doing, what grades you're trying, and what you look like and where exactly you are</p>
               <p>Users will be displayed if they are within 5km of the coordinates that you see in the URL (letsclimbstuff.com/list/latitude/longitude)</p>
