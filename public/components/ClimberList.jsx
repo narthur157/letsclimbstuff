@@ -69,6 +69,8 @@ export default class ClimberList extends React.Component {
     climber.longitude = this.state.longitude 
     climber.time = new Date()
 
+    console.log(climber)
+
     // Significant hack used here to get state without CORS
     // Server just saves the session id and sends it back, client keeps track of it
     // TODO: Session correctly

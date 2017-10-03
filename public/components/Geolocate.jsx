@@ -10,9 +10,20 @@ export default class Geolocate extends React.Component {
 
   handleGeolocate() {
     navigator.geolocation.getCurrentPosition(position => {
+      // only keep the last 4 decimals to shorten urls
+      let truncate = (coord) => {
+        let cStr = coord.toString()
+        return cStr.substring(0, cStr.indexOf('.')+5)
+      }
+
+      let truncated = {
+        latitude: truncate(position.coords.latitude),
+        longitude: truncate(position.coords.longitude)
+      }
+
       this.setState({ 
-        latitude: position.coords.latitude, 
-        longitude: position.coords.longitude
+        latitude: truncated.latitude, 
+        longitude: truncated.longitude
       })
 
       this.props.onLocated(this.state)

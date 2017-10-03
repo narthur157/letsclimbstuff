@@ -5,7 +5,7 @@ export default class SetClimberForm extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      name: '',
+      username: '',
       desc: ''
     }
     
@@ -16,7 +16,7 @@ export default class SetClimberForm extends React.Component {
 
   handleNameChange (e) {
     this.setState({
-      name: e.target.value
+      username: e.target.value
     })
   }
   
@@ -34,12 +34,12 @@ export default class SetClimberForm extends React.Component {
     return (
       <footer className='pa2 black-80 bt w-100'>
         <div className='pa1 center'>
-          <label className='f6 b db mb2'>Name</label>
+          <label className='f6 b dib mb2'>Mountain Project e-mail (preferred) or name</label>
           <input type='text' id='name' className='wide-measure input-reset ba b--black-20 pa2 mb2 db w-100'
-                 placeholder='Name' onChange={this.handleNameChange} value={this.state.name} />
-          <label className='f6 b db mb2 pt2'>How to find you</label>
-          <input className='wide-measure input-reset ba b--black-20 pa2 mb2 db w-100' type='text' id='desc' onChange={this.handleDescChange} value={this.state.desc} placeholder='Description' />
-          <button className='w-100 f6 link dim ba bw1 ph3 pv2 mb2 dib black--50' type='button' onClick={this.handleSubmitClimber}>Add/Update my information</button>
+                 onChange={this.handleNameChange} value={this.state.username} />
+          <label className='f6 b db mb2 pt2'>How to find you and what you want to do</label>
+          <input className='wide-measure input-reset ba b--black-20 pa2 mb2 db w-100' type='text' id='desc' onChange={this.handleDescChange} value={this.state.desc} />
+          <button className='w-100 b f6 link dim ba bw1 ph3 pv2 dib' type='button' onClick={this.handleSubmitClimber}>Add/Update my information</button>
         </div>
       </footer>
     )

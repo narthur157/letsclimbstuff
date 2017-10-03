@@ -24,21 +24,20 @@ export default class SelectLocation extends React.Component {
   }
 
   render () {
-
     // TODO: Make pre-defined location component
     let earthTreksUrl = this.makeLink({
-      latitude: 38.861922,
-      longitude: -77.050498
+      latitude: 38.8619,
+      longitude: -77.0504
     })
 
     let movementUrl = this.makeLink({
-      latitude: 40.030016,
-      longitude: -105.257420
+      latitude: 40.0300,
+      longitude: -105.2574
     })
 
     let crgUrl = this.makeLink({
-      latitude: 41.582835,
-      longitude: -81.531752
+      latitude: 41.5828,
+      longitude: -81.5317
     })
 
     return (

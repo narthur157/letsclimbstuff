@@ -31,7 +31,7 @@ class LetsClimbMain extends React.Component {
     return (
       <div>
         <header className='bg-black-90 tracked fw6 ttu pl3 pv2 yellow overflow-auto'>
-          <a href='/' className='fl no-underline yellow dib'>Lets Climb Stuff</a>
+          <a href='/' className='fl no-underline yellow dib'>Let's Climb Stuff</a>
           <a className='f4 fr dib white' href='https://trello.com/b/7llp91a8'>
             <i className='fa fa-trello' aria-hidden='true'></i>
           </a>
