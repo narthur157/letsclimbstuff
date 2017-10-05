@@ -44,6 +44,6 @@ export default class Geolocate extends React.Component {
       return <p>Error: {this.state.locationError} to find your location, please accept the permission in your browser</p>
     }
 
-    return <button className='w-100 f6 link dim ba bw1 ph3 pv2 mb2 dib black--50' onClick={this.handleGeolocate} type='button'>My location</button>
+    return <button className='b w-100 f6 ba b--yellow dim button-reset ph3 pv2 mb2 dib bg-yellow' onClick={this.handleGeolocate} type='button'>My location</button>
   }
 }

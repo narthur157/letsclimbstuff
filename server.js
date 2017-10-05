@@ -5,6 +5,7 @@ const haversine = require('haversine')
 const session = require('express-session')
 const fs = require('fs')
 const request = require('request')
+const validator = require('validator')
 
 let app = express()
 app.use(cors())
@@ -32,6 +33,10 @@ app.use(bodyParser())
 
 let climbers = []
 let climberMap = {}
+let updateClimberData = climber => {
+	climberMap[climber.sId] = climber
+	climbers = Object.values(climberMap)
+}
 
 let reqMp = (email, cb) => {
 	let reqUrl = getMpUser(email)
@@ -55,55 +60,67 @@ let reqMp = (email, cb) => {
 
 }
 
-app.post('/setClimber', (req, res) => {
-	let climber = { username: req.body.username,
-					  desc: req.body.desc,
-					  latitude: req.body.latitude,
-					  longitude: req.body.longitude,
-					  time: req.body.time || new Date(),
-					  sId: req.body.sId
-					}
+let updateClimber = (climber, res) => {
+	let clientClimber = {
+		sId: climber.sId,
+		desc: climber.desc,
+		latitude : climber.latitude,
+		longitude: climber.longitude,
+		time: new Date()
+	}
 
-	let id
-	
-	if (climber.username.includes('@')) {
-		id = climber.username
+	let serverClimber = climberMap[climber.sId]
+
+	if (!serverClimber) {
+		console.log('Tried to update null climber')
+		res.status(500).send('Tried to update null climber')
 	}
 	else {
-		id = climber.sId ? JSON.parse(climber.sId) : Math.floor(Math.random() * 99999)
+		Object.assign(serverClimber, clientClimber)
+		res.json(climber.sId)
+	}
+}
+
+app.put('/climber', (req, res) => updateClimber(req.body, res))
+
+app.post('/climber', (req, res) => {
+	let climber = { 
+		username: req.body.username,
+	  desc: req.body.desc,
+	  latitude: req.body.latitude,
+	  longitude: req.body.longitude,
+	  time: new Date(),
 	}
 
-	climber.sId = id
-
-	if (climber.username.includes('@') && !climberMap[climber.username]) {
-		console.log('Making MP request')
+	if (validator.isEmail(climber.username)) {
+		// Use the username to prevent extra requests to MP API
+		climber.sId = climber.username
+		if (climberMap[climber.sId]) {
+			// This is actually an update call, little hacky just client might not know
+			return updateClimber(climber, res)
+		}
 
 		reqMp(climber.username, mpData => {
 			if (mpData) {
-					Object.assign(climber, mpData)
+				Object.assign(climber, mpData)
+				updateClimberData(climber)
+				res.json(climber.sId)
 			}
-
-			climberMap[climber.sId] = climber
-			climbers = Object.values(climberMap)
+			else {
+				console.log('Bad mp email')
+				res.status(500).send('Bad MP email')
+			}
 		})
 	}
 	else {
-		if (!climber.name) { climber.name = climber.username }
-		
-		if (climberMap[climber.sId]) {
-			climberMap[climber.sId].time = climber.time
-			climberMap[climber.sId].desc = climber.desc
-			climberMap[climber.sId].latitude = climber.latitude
-			climberMap[climber.sId].longitude = climber.longitude
-		}
-		else {
-			climberMap[climber.sId] = climber
-		}
+		climber.sId = Math.floor(Math.random() * 99999)
+		climber.name = climber.username
+		updateClimberData(climber)
 
-		climbers = Object.values(climberMap)
+		res.json(climber.sId)
 	}
+
 	console.log(climbers)
-	res.json(id)
 })
 
 app.get('/climbers/:latitude/:longitude', (req, res) => {

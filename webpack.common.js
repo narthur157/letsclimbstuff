@@ -6,7 +6,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[hash].js',
-    publicPath: 'dist'
+    publicPath: '/'
   },
   resolve: {
     extensions: ['.js', '.jsx', '.css'],
@@ -42,6 +42,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: 'public/indexTemplate.html',
+      filename: 'index.html',
       favicon: 'favicon.ico'
     })
   ]

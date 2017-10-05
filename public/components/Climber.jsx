@@ -14,7 +14,8 @@ export default class Climber extends React.Component {
     )
 
     if (!this.props.avatar) {
-      const letter = (this.props.name[0] || 'C').toUpperCase()
+
+      const letter = ((this.props.name && this.props.name[0]) || 'C').toUpperCase()
       const color = colorList[letter.charCodeAt(0) % colorList.length]
 
       const circleStyle = {
@@ -42,7 +43,7 @@ export default class Climber extends React.Component {
         <div className='dib pv2'>
             {avatar}
         </div>
-        <p className='dib pl2 f6 fw3 black w-70'>{this.props.desc}</p>
+        <p className='flex-auto dib pl2 f6 fw3 black w-70'>{this.props.desc}</p>
       	<div className='pv2 dib fw1 black-90'>
         	<a href={this.props.url} className='tr db f6 fw3 black truncate'>{this.props.name}</a>
         	<span className='tr db f6 black-50 truncate'>{time}</span>
