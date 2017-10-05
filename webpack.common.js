@@ -1,11 +1,11 @@
 const path = require('path')
-console.log(__dirname)
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
   entry: path.resolve(__dirname, 'public/index'),
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js',
+    filename: '[hash].js',
     publicPath: 'dist'
   },
   resolve: {
@@ -38,5 +38,10 @@ module.exports = {
         loader: 'url-loader?limit=30000&name=[name]-[hash].[ext]'
       }
     ]
-  }
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: 'public/indexTemplate.html'
+    })
+  ]
 }

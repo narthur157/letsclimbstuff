@@ -1,7 +1,6 @@
 import React from 'react'
 import {render} from 'react-dom'
 import moment from 'moment'
-import ReactLetterAvatar from 'react-letter-avatar'
 
 const colorList = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae']
 

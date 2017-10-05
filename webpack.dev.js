@@ -7,9 +7,9 @@ module.exports = merge(common, {
   devtool: 'eval-source-map',
   devServer: {
     historyApiFallback: {
-      index:'public/index.html',
+      index:'dist/index.html',
       rewrites: [
-        { from: /list\/*/, to: 'public/index.html' }
+        { from: /list\/*/, to: 'dist/index.html' }
       ]
     },
     https: false
