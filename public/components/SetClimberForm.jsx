@@ -8,8 +8,7 @@ export default class SetClimberForm extends React.Component {
     super(props)
     this.state = {
       username: '',
-      desc: '',
-      submitted: false
+      desc: ''
     }
     
     this.handleNameChange = this.handleNameChange.bind(this)
@@ -55,18 +54,15 @@ export default class SetClimberForm extends React.Component {
   }
   
   handleSubmitClimber (e) {
-    if (!this.state.submitted && this.state.invalidUsername) {
+    if (!this.props.climberAdded && this.state.invalidUsername) {
       window.alert('Please enter a valid name (no more than 2 words) or e-mail')
     }
     else {
-      this.props.onSubmitClimber(this.state).then(result => {
-        if (result) {
-          this.state.submitted = true
-        }
-      }).catch(err => {
-        window.alert('E-mail not registered on Mountain Project, try a different one or just use your name')
-        this.state.invalidUsername = true
-      })
+      this.props.onSubmitClimber(this.state)
+        .catch(err => {
+          window.alert('E-mail not registered on Mountain Project, try a different one or just use your name')
+          this.state.invalidUsername = true
+        })
     }
   }
 
@@ -76,7 +72,7 @@ export default class SetClimberForm extends React.Component {
  
   render() {
     let nameClasses = 'wide-measure input-reset ba pa2 mb2 db w-100 ' + (this.state.invalidUsername ? 'b--orange outline-0' : 'b--black-20 ')
-    let submitName = !this.state.submitted ? (
+    let submitName = !this.props.climberAdded ? (
       <div>
         <label className='f6 b dib mb2'>Mountain Project e-mail (preferred) or name</label>
         <input ref={(input) => this.nameInput = input } type='text' id='name' className={nameClasses}
@@ -84,7 +80,7 @@ export default class SetClimberForm extends React.Component {
       </div>
     ) : null
 
-    let submitText = !this.state.submitted ? 'Add information to list' : 'Update message'
+    let submitText = !this.props.climberAdded ? 'Add information to list' : 'Update message'
 
     return (
       <form className='pa2 black-80 bt w-100'>

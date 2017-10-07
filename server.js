@@ -6,10 +6,32 @@ const session = require('express-session')
 const fs = require('fs')
 const request = require('request')
 const validator = require('validator')
+const webpush = require('web-push')
+
+const DISTANCE_THRESHOLD_KM = 5
+const MSG_EXP_MIN = 45
 
 let app = express()
-app.use(cors())
+
 let port = process.env.PORT || 8001
+if (app.get('env') === 'production') {
+	app.set('trust proxy', 1)
+	sess.cookie.secure = true
+	port = 8000
+}
+
+let sess = {
+  secret: 'keyboard cat',
+  cookie: {}
+}
+
+app.use(cors({
+	origin: /http:\/\/localhost:8080*/,
+	credentials: true
+}))
+
+app.use(session(sess))
+
 
 fs.readFile('ssl/mp.key', 'utf8', (err, data) => {
 	mpKey = data
@@ -18,9 +40,28 @@ fs.readFile('ssl/mp.key', 'utf8', (err, data) => {
 	}
 })
 
-if (process.env.NODE_ENV === 'production') {
-	port = 8000
+let vapidKeys
+fs.readFile('ssl/vapid.keys', 'utf8', (err, data) => {
+	vapidKeys = JSON.parse(data)
+	webpush.setVapidDetails(
+	  'mailto:narthur157@gmail.com',
+	  vapidKeys.public,
+	  vapidKeys.private
+	)
+})
+
+const triggerPushMsg = function(subscription, dataToSend) {
+  return webpush.sendNotification(subscription, JSON.stringify(dataToSend))
+  .catch((err) => {
+    if (err.statusCode === 410) {
+    	// delete subscription
+      return Promise.resolve()
+    } else {
+      console.log('Subscription is no longer valid: ', err)
+    }
+  })
 }
+
 
 let mpKey
 const mpApi = 'https://www.mountainproject.com/data/'
@@ -31,10 +72,14 @@ const getMpUser = email => {
 
 app.use(bodyParser())
 
+// TODO: Use some sort of data store
 let climbers = []
 let climberMap = {}
+let subscriptions = {}
+
 let updateClimberData = climber => {
-	climberMap[climber.sId] = climber
+	console.log(climber.id)
+	climberMap[climber.id] = climber
 	climbers = Object.values(climberMap)
 }
 
@@ -60,16 +105,25 @@ let reqMp = (email, cb) => {
 
 }
 
-let updateClimber = (climber, res) => {
+let updateClimber = (req, res) => {
 	let clientClimber = {
-		sId: climber.sId,
-		desc: climber.desc,
-		latitude : climber.latitude,
-		longitude: climber.longitude,
+		id: req.session.id,
+		desc: req.body.desc,
+		latitude : req.body.latitude,
+		longitude: req.body.longitude,
 		time: new Date()
 	}
 
-	let serverClimber = climberMap[climber.sId]
+	const loc = { latitude: clientClimber.latitude, longitude: clientClimber.longitude }
+
+	let serverClimber = climberMap[clientClimber.id]
+
+	let sub = subscriptions[clientClimber.id]
+
+	if (sub) {
+		sub.location = loc
+	}
+
 
 	if (!serverClimber) {
 		console.log('Tried to update null climber')
@@ -77,11 +131,70 @@ let updateClimber = (climber, res) => {
 	}
 	else {
 		Object.assign(serverClimber, clientClimber)
-		res.json(climber.sId)
+		notifyLoc(serverClimber)
+		res.json(clientClimber.id)
 	}
 }
 
-app.put('/climber', (req, res) => updateClimber(req.body, res))
+app.put('/climber', (req, res) => {
+	return updateClimber(req, res)
+})
+
+const cleanExpiredSubscriptions = subs => {
+	for (id in subs) {
+		let {time} = subs[id]
+		let age = (new Date() - new Date(time))/1000/60
+
+		if (age >= MSG_EXP_MIN) {
+			delete subs[id]
+		}
+	}
+
+	return subs
+}
+
+const notifyLoc = climber => {
+	console.log(climber)
+	climber = climberMap[climber.id]
+	console.log(climber)
+	let loc = {
+		latitude: climber.latitude,
+		longitude: climber.longitude
+	}
+
+	let senderId = climber.id
+	subscriptions = cleanExpiredSubscriptions(subscriptions)
+	let subsToNotify = []
+
+	for (id in subscriptions) {
+		if (senderId !== id) {
+			let {location} = subscriptions[id] 
+			
+			if (haversine(location, loc) < DISTANCE_THRESHOLD_KM) {
+				subsToNotify.push(subscriptions[id])
+			}
+			else {
+				console.log('filtered out distance')
+			}
+		}
+		else {
+			console.log('filtered out sender')
+		}
+	}
+
+	console.log(subsToNotify)
+
+	return subsToNotify
+		.reduce((promiseChain, {subscription}) => {
+			return promiseChain.then(() => triggerPushMsg(subscription, climber))
+		}, Promise.resolve())
+	  .then(() => {
+	    console.log('Notifications sent successfully')
+	  })
+	  .catch(function(err) {
+	    console.warn('Notifications not sent successfully', err)
+	  })
+}
 
 app.post('/climber', (req, res) => {
 	let climber = { 
@@ -90,21 +203,22 @@ app.post('/climber', (req, res) => {
 	  latitude: req.body.latitude,
 	  longitude: req.body.longitude,
 	  time: new Date(),
+	  id: req.session.id
 	}
 
-	if (validator.isEmail(climber.username)) {
-		// Use the username to prevent extra requests to MP API
-		climber.sId = climber.username
-		if (climberMap[climber.sId]) {
-			// This is actually an update call, little hacky just client might not know
-			return updateClimber(climber, res)
-		}
+	if (climberMap[req.session.id]) {
+		return updateClimber(req, res)
+	}
 
+	let loc = { latitude: climber.latitude, longitude: climber.longitude }
+
+	if (validator.isEmail(climber.username)) {
 		reqMp(climber.username, mpData => {
 			if (mpData) {
 				Object.assign(climber, mpData)
 				updateClimberData(climber)
-				res.json(climber.sId)
+				notifyLoc(climber)
+				res.json(climber.id)
 			}
 			else {
 				console.log('Bad mp email')
@@ -113,11 +227,11 @@ app.post('/climber', (req, res) => {
 		})
 	}
 	else {
-		climber.sId = Math.floor(Math.random() * 99999)
 		climber.name = climber.username
 		updateClimberData(climber)
+		notifyLoc(climber)
 
-		res.json(climber.sId)
+		res.json(climber.id)
 	}
 
 	console.log(climbers)
@@ -125,23 +239,72 @@ app.post('/climber', (req, res) => {
 
 app.get('/climbers/:latitude/:longitude', (req, res) => {
 	const loc = { latitude: req.params.latitude, longitude: req.params.longitude }
-	let nearbyClimbers = climbers.filter(climber => haversine(climber, loc) < 5)
+	let nearbyClimbers = climbers.filter(climber => haversine(climber, loc) < DISTANCE_THRESHOLD_KM)
 
-	const climberDuration = 45
-	// Remove any climber that hasn't been updated in climberDuration minutes
+	// Remove any climber that hasn't been updated in MSG_EXP_MIN minutes
 	nearbyClimbers = nearbyClimbers.filter(climber => {
 		let age = (new Date() - new Date(climber.time))/1000/60
 
-		if (age >= climberDuration) {
-			delete climberMap[climber.sId]
+		if (age >= MSG_EXP_MIN) {
+			delete climberMap[climber.id]
 		}
 
 		climbers = Object.values(climberMap)
 
-		return age < climberDuration
+		return age < MSG_EXP_MIN
+	})
+
+	nearbyClimbers = nearbyClimbers.map(climber => {
+		let copyClimber = Object.assign({}, climber)
+		
+		if (climber.id === req.session.id) {
+			copyClimber.isRequester = true
+		}
+		else {
+			// Dont give out session ids
+			delete copyClimber['id']
+		}
+
+		return copyClimber
 	})
 
 	res.json(nearbyClimbers)
+})
+
+const isValidSaveRequest = (req, res) => {
+  // Check the request body has at least an endpoint.
+  if (!req.body || !req.body.endpoint) {
+    // Not a valid subscription.
+    res.status(400)
+    res.setHeader('Content-Type', 'application/json')
+    res.send(JSON.stringify({
+      error: {
+        id: 'no-endpoint',
+        message: 'Subscription must have an endpoint.'
+      }
+    }))
+    return false
+  }
+  return true
+}
+
+
+app.post('/save-subscription/:latitude/:longitude', function (req, res) {
+	const loc = { latitude: req.params.latitude, longitude: req.params.longitude }
+
+	if (isValidSaveRequest(req, res)) {
+		subscriptions[req.session.id] = {
+			location: loc,
+			subscription: req.body,
+			time: Date.now()
+		}
+	}
+
+  res.json({
+  	data: {
+  		success: true
+  	}
+  })
 })
 
 app.listen(port, () => {

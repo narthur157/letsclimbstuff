@@ -1,6 +1,7 @@
 import React from 'react'
 import {render} from 'react-dom'
 import Climber from 'Components/Climber'
+import Notifier from 'Components/Notifier'
 
 export default class Climbers extends React.Component {
   render() {
@@ -9,13 +10,15 @@ export default class Climbers extends React.Component {
       )
 
       let climberTable = <ul className='list pl0 ml0 mt0 b--white-90'>{climbers}</ul>
-
+      let suggestNotifications = Notifier.featureDetect() ? (
+          <h4 className='tc black-60'>Enable notifications below so you know when other climbers show up</h4>
+        ) : null
       if (this.props.climbers.length < 1) {
         climberTable = (
           <div>
             <h3 className='tc black-60'>Climbers will appear here</h3>
             <h4 className='tc black-60'>Add yourself so others can find you</h4>
-            <h4 className='tc black-60'>Your name will be displayed, along with your message</h4>
+            {suggestNotifications}
           </div>
         )
       }

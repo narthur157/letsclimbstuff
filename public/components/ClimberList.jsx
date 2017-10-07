@@ -2,13 +2,14 @@ import React from 'react'
 import {render} from 'react-dom'
 import Climbers from 'Components/Climbers'
 import SetClimberForm from 'Components/SetClimberForm'
+import Notifier from 'Components/Notifier'
 
 let server
 if (document.domain.includes('letsclimbstuff')) {
-  server = 'https://' + document.domain + ':8001/'
+  server = 'https:\/\/' + document.domain + ':8001/'
 }
 else {
-  server = 'http://' + document.domain + ':8001/'
+  server = 'http:\/\/' + document.domain + ':8001/'
 }
 const getClimbers = (lat, lon) => server + 'climbers/' + lat + '/' + lon
 const addClimber = server + 'climber'
@@ -34,12 +35,25 @@ export default class ClimberList extends React.Component {
     let updateClimbers = () => {
       let numClimbersOld = this.state.climbers.length
       fetch(getClimbers(this.state.latitude, this.state.longitude), {
-        method: 'GET'
+        method: 'GET',
+        credentials: 'include'
       }).then(resp => {
         return resp.text()
       }).then(val => {
+        let climbers = JSON.parse(val)
+        console.log('fetching', climbers)
+        for (let climber of climbers) {
+          if (climber.isRequester) {
+            console.log('found our climber')
+            this.setState({
+              sId: climber.id,
+              climberAdded: true
+            })
+          }
+        }
+
         this.setState({
-          climbers: JSON.parse(val)
+          climbers
         })
       })
     }
@@ -64,9 +78,6 @@ export default class ClimberList extends React.Component {
   
   handleAddClimber (climber) {
     let method = this.state.sId ? 'PUT' : 'POST'
-    if (this.state.sId) { 
-      climber.sId = this.state.sId
-    }
 
     climber.latitude = this.state.latitude
     climber.longitude = this.state.longitude
@@ -77,6 +88,7 @@ export default class ClimberList extends React.Component {
     return new Promise((resolve, reject) => {
       fetch(addClimber, {
         method,
+        credentials: 'include',
         headers: {
           'Content-Type':  'application/json'
         },
@@ -101,7 +113,8 @@ export default class ClimberList extends React.Component {
     return (
       <div>
         <Climbers climbers={this.state.climbers} />
-        <SetClimberForm onSubmitClimber={this.handleAddClimber}/>
+        <SetClimberForm climberAdded={this.state.climberAdded}  onSubmitClimber={this.handleAddClimber}/>
+        <Notifier latitude={this.state.latitude} longitude={this.state.longitude} />
       </div>
     )
   }
