@@ -1,11 +1,32 @@
 import React from 'react'
 import URLSafeBase64 from 'urlsafe-base64'
+import API from 'Lib/api'
 
-
+// TODO: Split this into a static lib class and a component class
 export default class Notifier extends React.Component {
 	constructor(props) {
-		super(props);
+		super(props)
+		this.state = { subscribed: false }
 		this.toggleSubscribe = this.toggleSubscribe.bind(this)
+		Notifier.subscribeUser = Notifier.subscribeUser.bind(this)
+		Notifier.unsubscribeUser = Notifier.unsubscribeUser.bind(this)
+	}
+
+	componentDidMount() {
+		API.user.GET().then(resp => {
+			if (resp.ok) {
+				return resp.text()
+			}
+		}).then(val => {
+			let user = JSON.parse(val)
+			console.log(user)
+			if (user.subscription) {
+				console.log('user has sub on server, trying to sub..')
+				Notifier.subscribeUser(this.getLocation())
+			}
+		}).catch(err => {
+			console.log(err)
+		})
 	}
 
 	static swRegistration
@@ -24,12 +45,12 @@ export default class Notifier extends React.Component {
 
 		return navigator.serviceWorker.register('service-worker.js')
 			.then(registration => {
-				console.log('sw registered')
-				console.log(registration)
+				console.log('sw registered', registration)
+
 				return registration
 			})
 			.catch(err => {
-				console.log('sw err', err)
+				console.warn('sw err', err)
 			})
 	}
 
@@ -45,17 +66,13 @@ export default class Notifier extends React.Component {
 		    console.log('Received PushSubscription: ', JSON.stringify(pushSubscription))
 		    return pushSubscription
 		  })
+		  .catch(err => {
+		  	console.warn(err)
+		  })
 	}
 
 	static sendSubscriptionToBackEnd(subscription, location) {
-	  return fetch(`http:\/\/${document.domain}:8001/save-subscription/${location.latitude}/${location.longitude}`, {
-	    method: 'POST',
-	    credentials: 'include',
-	    headers: {
-	      'Content-Type': 'application/json'
-	    },
-	    body: JSON.stringify(subscription)
-	  })
+	  return API.subscriptions.POST(subscription, location.latitude, location.longitude)
 	  .then(function(response) {
 	    if (!response.ok) {
 	      throw new Error('Bad status code from server.')
@@ -87,22 +104,24 @@ export default class Notifier extends React.Component {
 	    if (permissionResult !== 'granted') {
 	      throw new Error('We weren\'t granted permission.')
 	    }
-	  })
-	}
+	  }
+)	}
 
 	static unsubscribeUser() {
 		if (!Notifier.subscription) {
 			throw new Error('Tried to unsubscribe from null subscription')
 		}
 
-		return navigator.serviceWorker.ready.then(function(reg) {
-		  reg.pushManager.getSubscription().then(function(subscription) {
-		    subscription.unsubscribe().then(function(successful) {
-		      console.log('unsubscribe successful')
+		return navigator.serviceWorker.ready.then(reg => {
+		  reg.pushManager.getSubscription().then(subscription => {
+		  	// Even if server fails to unsubscribe, this will still prevent notifications
+		    subscription.unsubscribe().then(successful => {
+		    	this.setState({ subscribed: false })
 		      Notifier.subscribed = false
-		    }).catch(function(e) {
+		    }).catch((e) => {
 		    	console.err(e)
 		    })
+		    .then(() => API.subscriptions.DELETE())
 		  })        
 		})
 
@@ -130,26 +149,31 @@ export default class Notifier extends React.Component {
 				console.warn(err)
 			})
 			.then(result => {
-				console.log(result)
+				console.log('sub successs', result)
+				this.setState({ subscribed: true })
 				Notifier.subscribed = true
 				return result
 			})
 	}
 
-	toggleSubscribe() {
-		let location = {
+	getLocation() {
+		return {
  			latitude: this.props.latitude,
       longitude: this.props.longitude
 		}
+	}
+
+	toggleSubscribe() {
+		let location = this.getLocation()
 
 		return Notifier.subscribed ? Notifier.unsubscribeUser() : Notifier.subscribeUser(location)
 	}
-
 	render () {
+		console.log(this.state)	
 		return Notifier.featureDetect() ? (
 			<div>
-				<label>Receive notifications when climbers post here</label>
-				<input type='checkbox' onClick={this.toggleSubscribe} />
+				<label className='pr1'>Receive notifications when climbers post here</label>
+				<input type='checkbox' onClick={this.toggleSubscribe} checked={this.state.subscribed} />
 			</div>
 		) : (
 			<div>Notifications not available on this platform</div>

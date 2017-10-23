@@ -157,6 +157,7 @@ const notifyLoc = climber => {
 	console.log(climber)
 	climber = climberMap[climber.id]
 	console.log(climber)
+
 	let loc = {
 		latitude: climber.latitude,
 		longitude: climber.longitude
@@ -169,7 +170,7 @@ const notifyLoc = climber => {
 	for (id in subscriptions) {
 		if (senderId !== id) {
 			let {location} = subscriptions[id] 
-			
+
 			if (haversine(location, loc) < DISTANCE_THRESHOLD_KM) {
 				subsToNotify.push(subscriptions[id])
 			}
@@ -185,8 +186,9 @@ const notifyLoc = climber => {
 	console.log(subsToNotify)
 
 	return subsToNotify
-		.reduce((promiseChain, {subscription}) => {
-			return promiseChain.then(() => triggerPushMsg(subscription, climber))
+		.reduce((promiseChain, {subscription, location}) => {
+			let notifData = Object.assign({ clientLoc: location}, climber)
+			return promiseChain.then(() => triggerPushMsg(subscription, notifData))
 		}, Promise.resolve())
 	  .then(() => {
 	    console.log('Notifications sent successfully')
@@ -222,7 +224,7 @@ app.post('/climber', (req, res) => {
 			}
 			else {
 				console.log('Bad mp email')
-				res.status(500).send('Bad MP email')
+				res.status(404).send('Bad MP email')
 			}
 		})
 	}
@@ -235,6 +237,15 @@ app.post('/climber', (req, res) => {
 	}
 
 	console.log(climbers)
+})
+
+app.get('/user', (req, res) => {
+	let user = {
+		climber: climberMap[req.session.id],
+		subscription: subscriptions[req.session.id]
+	}
+
+	res.json(user)
 })
 
 app.get('/climbers/:latitude/:longitude', (req, res) => {
@@ -252,20 +263,6 @@ app.get('/climbers/:latitude/:longitude', (req, res) => {
 		climbers = Object.values(climberMap)
 
 		return age < MSG_EXP_MIN
-	})
-
-	nearbyClimbers = nearbyClimbers.map(climber => {
-		let copyClimber = Object.assign({}, climber)
-		
-		if (climber.id === req.session.id) {
-			copyClimber.isRequester = true
-		}
-		else {
-			// Dont give out session ids
-			delete copyClimber['id']
-		}
-
-		return copyClimber
 	})
 
 	res.json(nearbyClimbers)
@@ -289,7 +286,7 @@ const isValidSaveRequest = (req, res) => {
 }
 
 
-app.post('/save-subscription/:latitude/:longitude', function (req, res) {
+app.post('/subscriptions/:latitude/:longitude', function (req, res) {
 	const loc = { latitude: req.params.latitude, longitude: req.params.longitude }
 
 	if (isValidSaveRequest(req, res)) {
@@ -298,13 +295,37 @@ app.post('/save-subscription/:latitude/:longitude', function (req, res) {
 			subscription: req.body,
 			time: Date.now()
 		}
+		console.log('active subs: ', Object.keys(subscriptions).length)
 	}
+
 
   res.json({
   	data: {
   		success: true
   	}
   })
+})
+
+app.delete('/subscriptions', (req, res) => {
+	if (subscriptions[req.session.id]) {
+		console.log('subs before', Object.keys(subscriptions).length)
+		delete subscriptions[req.session.id]
+		console.log('subs after', Object.keys(subscriptions).length)
+		res.json({
+			data: {
+				success: true
+			}
+		})
+	}
+	else {
+		res.status(400)
+		res.json({
+			error : {
+				id: 'no-sub',
+				message: 'Subscription must exist to delete'
+			}
+		})
+	}
 })
 
 app.listen(port, () => {

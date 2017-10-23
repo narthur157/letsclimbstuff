@@ -15,7 +15,8 @@ module.exports = {
       'node_modules'
     ],
     alias: {
-      Components: path.resolve(__dirname, 'public/components/')
+      Components: path.resolve(__dirname, 'public/components/'),
+      Lib: path.resolve(__dirname, 'public/lib')
     }
   },
   module: {
