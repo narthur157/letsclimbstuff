@@ -53,7 +53,7 @@ export default class ClimberList extends React.Component {
         return resp.text()
       }).then(val => {
         let climbers = JSON.parse(val)
-
+        console.log('fetch climbers', climbers)
         this.setState({
           climbers
         })

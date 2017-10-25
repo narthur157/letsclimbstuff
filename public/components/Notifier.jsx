@@ -169,7 +169,6 @@ export default class Notifier extends React.Component {
 		return Notifier.subscribed ? Notifier.unsubscribeUser() : Notifier.subscribeUser(location)
 	}
 	render () {
-		console.log(this.state)	
 		return Notifier.featureDetect() ? (
 			<div>
 				<label className='pr1'>Receive notifications when climbers post here</label>
