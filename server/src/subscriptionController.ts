@@ -81,7 +81,6 @@ export const notifyLoc = (climber: Climber | MPClimber, senderId: string) => {
 
   for (let [id, sub] of subscriptions) {
     // dont notify the sender
-    console.log('test TEST')
     if (senderId !== id) {
       let location = sub.location 
       console.log('comparing locs', location, loc)
@@ -90,8 +89,8 @@ export const notifyLoc = (climber: Climber | MPClimber, senderId: string) => {
       }
     }
   }
-  //
-  console.log(`notifying ${subsToNotify.length} out of ${subscriptions.size} subs`)
+  
+  // console.log(`notifying ${subsToNotify.length} out of ${subscriptions.size} subs`)
 
   return subsToNotify
   .reduce((promiseChain: Promise<any>, {subscription, location}) => {
@@ -99,20 +98,22 @@ export const notifyLoc = (climber: Climber | MPClimber, senderId: string) => {
     return promiseChain.then(() => triggerPushMsg(subscription, notifData))
   }, Promise.resolve())
   .then(() => {
-    console.log('Notifications sent successfully')
+    // console.log('Notifications sent successfully')
   })
   .catch(function(err) {
     console.warn('Notifications not sent successfully', err)
   })
 }
 
-export let updateSubscription 
+export let addSubscription = (id: string, sub : Subscription): void => {
+  subscriptions.set(id, sub)
+}
 
 export let addSubscriptionReq = (req: Request, res: Response): void => {
   const loc = { latitude: req.params.latitude, longitude: req.params.longitude }
 
   if (isValidSaveRequest(req, res)) {
-    subscriptions.set(req.session.id, {
+    addSubscription(req.session.id, {
       location: loc,
       subscription: req.body,
       time: new Date()

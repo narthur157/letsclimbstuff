@@ -33,8 +33,6 @@ const pruneClimbers = () => {
     let age : number = (new Date().valueOf() - new Date(climber.time).valueOf())/1000/60
 
     if (age >= MSG_EXP_MIN) {
-      console.log('deleting overage climber')
-      
       climberMap.delete(id)
     }
   }
@@ -84,14 +82,17 @@ export const addClimber = (climber: Climber, id: string) => {
   return id  
 }
 
-export const addMPClimber = (climber: Climber, id: string): Promise<void> => {
+export const addMPClimber = (climber: Climber, id: string): Promise<MPClimber> => {
   return new Promise((resolve, reject) => {
     reqMp(climber.username)
     .then(mpData => {
-      Object.assign(climber, mpData)
-      updateClimberData(climber, id)
-      notifyLoc(climber, id)
-      resolve()
+      delete mpData.location
+
+      let copyOld = Object.assign({}, climber)
+      let newClimber : MPClimber = Object.assign(copyOld, mpData)
+      updateClimberData(newClimber, id)
+      notifyLoc(newClimber, id)
+      resolve(newClimber)
     })
   })
 }
@@ -104,7 +105,7 @@ export const getClimbersReq = (req: Request, res: Response): void => {
 }
 
 export const getClimber = (id: string): UClimber => {
-  return climberMap.get(id)
+  return Object.assign({}, climberMap.get(id))
 }
 
 export const getClimbers = (loc: Location): (UClimber)[] => {
