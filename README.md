@@ -1,6 +1,6 @@
 Small project to practice React.
 
-###Setup
+### Setup
 
 `npm install`
 `npm run dev` starts the node server as well as the webpack-dev server
